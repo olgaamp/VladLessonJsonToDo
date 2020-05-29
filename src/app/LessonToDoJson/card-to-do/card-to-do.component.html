@@ -1,0 +1,26 @@
+<div class="container <!--card --><!--card-img-top-->">
+  <h1 class="">Загрузка - выгрузка данных</h1>
+  <br>
+  <button class="btn btn-secondary" (click)="getDataJson()">Загрузить</button>
+  <br>
+  <div class="card card-img-top ">
+    <table>
+      <tr>
+        <th>first_name</th>
+        <th>last_name</th>
+        <th>gender</th>
+        <th>dob</th>
+        <th>phone</th>
+      </tr>
+
+      <tr *ngFor="let element of arrayOfUsers">
+        <td class="car-title">{{element.first_name}}</td>
+        <td>{{element.last_name}}</td>
+        <td>{{element.gender}}</td>
+        <td>{{element.dob}}</td>
+        <td>{{element.phone}}</td>
+      </tr>
+
+    </table>
+  </div>
+</div>

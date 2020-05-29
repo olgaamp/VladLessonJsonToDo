@@ -1,0 +1,38 @@
+import {Component, OnInit} from '@angular/core';
+
+@Component({
+  selector: 'app-card-to-do',
+  //html этого компонента. Отттуда у нас доступ к полям и метоам класса CardToDoComponent
+  templateUrl: './card-to-do.component.html',
+  styleUrls: ['./card-to-do.component.css']
+})
+export class CardToDoComponent {
+
+  arrayOfUsers;
+
+  // метод компонента CardToDoComponent
+  getDataJson() {
+    // 1. Создаём новый XMLHttpRequest-объект
+    let xhr = new XMLHttpRequest();
+    let thisComponent = this;
+
+    // 2. Настраиваем его: GET-запрос по URL /article/.../load
+    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=6sBaBjZmWrI20J_Ix0KIaIHd4DcolawnQtt6');
+
+    // 3. Этот код сработает после того, как мы получим ответ сервера
+    xhr.onload = function() {
+      if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+        alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+      } else { // если всё прошло гладко, выводим результат
+        alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+
+        thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender - b.gender));
+
+      }
+    };
+
+    // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
+    // пусть пока всё так
+    xhr.send();
+  }
+}

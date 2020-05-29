@@ -10,14 +10,16 @@ export class CardToDoComponent {
 
   arrayOfUsers;
 
+
   // метод компонента CardToDoComponent
-  getDataJson() {
+
+  constructor() {
     // 1. Создаём новый XMLHttpRequest-объект
     let xhr = new XMLHttpRequest();
     let thisComponent = this;
 
     // 2. Настраиваем его: GET-запрос по URL /article/.../load
-    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=6sBaBjZmWrI20J_Ix0KIaIHd4DcolawnQtt6');
+    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
 
     // 3. Этот код сработает после того, как мы получим ответ сервера
     xhr.onload = function() {
@@ -26,7 +28,7 @@ export class CardToDoComponent {
       } else { // если всё прошло гладко, выводим результат
         alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
 
-        thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender - b.gender));
+        thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
 
       }
     };
@@ -34,5 +36,30 @@ export class CardToDoComponent {
     // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
     // пусть пока всё так
     xhr.send();
+  }
+
+  sortByFirst_mame() {
+
+    this.arrayOfUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1));
+  }
+
+  getDataJson() {
+
+  }
+
+  sortByLast_name() {
+    this.arrayOfUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
+  }
+
+  sortByGender() {
+    this.arrayOfUsers.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+  }
+
+  sortByDob() {
+    this.arrayOfUsers.sort((a, b) => (a.dob > b.dob ? 1 : -1));
+  }
+
+  sortByPhone() {
+    this.arrayOfUsers.sort((a, b) => (a.phone > b.phone ? 1 : -1));
   }
 }

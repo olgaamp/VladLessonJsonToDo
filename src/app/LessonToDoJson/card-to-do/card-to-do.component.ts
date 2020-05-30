@@ -10,32 +10,37 @@ export class CardToDoComponent {
 
   arrayOfUsers;
 
-
   // метод компонента CardToDoComponent
 
   constructor() {
     // 1. Создаём новый XMLHttpRequest-объект
-    let xhr = new XMLHttpRequest();
-    let thisComponent = this;
+    let dataUser = localStorage.getItem('dataUser');
+    if (dataUser !== null) {
+      this.arrayOfUsers = JSON.parse(dataUser).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+    } else {
+      let xhr = new XMLHttpRequest();
+      let thisComponent = this;
 
-    // 2. Настраиваем его: GET-запрос по URL /article/.../load
-    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
+      // 2. Настраиваем его: GET-запрос по URL /article/.../load
+      xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
 
-    // 3. Этот код сработает после того, как мы получим ответ сервера
-    xhr.onload = function() {
-      if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
-        alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
-      } else { // если всё прошло гладко, выводим результат
-        alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+      // 3. Этот код сработает после того, как мы получим ответ сервера
+      xhr.onload = function() {
+        if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+          alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+        } else { // если всё прошло гладко, выводим результат
+          alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+          localStorage.setItem('dataUser', xhr.response);
+          thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+          //setTimeout(() => thisComponent.arrayOfUsers.remove(), 1500);
+        }
+      };
 
-        thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
 
-      }
-    };
-
-    // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
-    // пусть пока всё так
-    xhr.send();
+      // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
+      // пусть пока всё так
+      xhr.send();
+    }
   }
 
   sortByFirst_mame() {

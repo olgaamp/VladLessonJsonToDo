@@ -16,7 +16,7 @@ export class CardToDoComponent {
     // 1. Создаём новый XMLHttpRequest-объект
     let dataUser = localStorage.getItem('dataUser');
     if (dataUser !== null) {
-      this.arrayOfUsers = JSON.parse(dataUser).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+      this.processData(dataUser);
     } else {
       let xhr = new XMLHttpRequest();
       let thisComponent = this;
@@ -31,16 +31,18 @@ export class CardToDoComponent {
         } else { // если всё прошло гладко, выводим результат
           alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
           localStorage.setItem('dataUser', xhr.response);
-          thisComponent.arrayOfUsers = JSON.parse(xhr.response).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
-          //setTimeout(() => thisComponent.arrayOfUsers.remove(), 1500);
+
+          thisComponent.processData(xhr.response);
         }
       };
 
-
       // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
-      // пусть пока всё так
       xhr.send();
     }
+  }
+
+  processData(dataUser: string) {
+    this.arrayOfUsers = JSON.parse(dataUser).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
   }
 
   sortByFirst_mame() {

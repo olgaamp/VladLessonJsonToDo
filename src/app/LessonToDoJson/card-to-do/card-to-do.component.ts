@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-card-to-do',
@@ -9,74 +9,77 @@ import {Component, OnInit} from '@angular/core';
 export class CardToDoComponent {
 
   arrayOfUsers;
-
+  
   // метод компонента CardToDoComponent
 
   constructor() {
-    // 1. Создаём новый XMLHttpRequest-объект
+    this.loadData();
+  }
+
+  private loadData() {
     let dataUser = localStorage.getItem('dataUser');
-    let timeBegin = localStorage.getItem('getTimeDataUser');
 
-    let dateFromString = new Date(parseInt(timeBegin));
-
-    let now = new Date();
-    // let nowAsString = now.toTimeString(); toUTCString()
-    let diffDays = Math.abs(now.getTime() - dateFromString.getTime());
-
-    if (dataUser !== null && diffDays <= 10000) {
+    if (dataUser !== null && this.getDiffMs() <= 10000) {
       this.processData(dataUser);
     } else {
-      let xhr = new XMLHttpRequest();
-      let thisComponent = this;
-
-      // 2. Настраиваем его: GET-запрос по URL /article/.../load
-      xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
-
-      // 3. Этот код сработает после того, как мы получим ответ сервера
-      xhr.onload = function() {
-        if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
-          alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
-        } else { // если всё прошло гладко, выводим результат
-          alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
-          localStorage.setItem('dataUser', xhr.response);
-          let now = new Date();
-          localStorage.setItem('getTimeDataUser', '' + now.getTime());
-
-          thisComponent.processData(xhr.response);
-        }
-      };
-
-      // ниже 2 обработчика не пригодились. Они нужны по факту, но сейчас давай на них не обращать внимание. Это если что-то пошло не так.
-      xhr.send();
+      this.getDataFromServer();
     }
+  }
+
+  private getDataFromServer() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
+    xhr.onload = this.getOnloadFunction(xhr);
+    xhr.send();
+  }
+
+  private getOnloadFunction(xhr: XMLHttpRequest) {
+    let thisComponent = this;
+    return function() {
+
+      if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+        alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+      } else { // если всё прошло гладко, выводим результат
+        alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+        thisComponent.processResponse(xhr, thisComponent);
+      }
+    };
+  }
+
+  private processResponse(xhr: XMLHttpRequest, thisComponent: this) {
+    localStorage.setItem('dataUser', xhr.response);
+    let now = new Date();
+    localStorage.setItem('getTimeDataUser', '' + now.getTime());
+    thisComponent.processData(xhr.response);
+  }
+
+  private getDiffMs() {
+    let timeBegin = localStorage.getItem('getTimeDataUser');
+    let dateFromString = new Date(parseInt(timeBegin));
+    let now = new Date();
+    let diffMs = Math.abs(now.getTime() - dateFromString.getTime());
+    return diffMs;
   }
 
   processData(dataUser: string) {
     this.arrayOfUsers = JSON.parse(dataUser).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
   }
 
-  sortByFirst_mame() {
-
-    this.arrayOfUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1));
+  sort(sortingType: string) {
+    if (sortingType === 'first_name') {
+      this.arrayOfUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1));
+    } else if (sortingType === 'last_name') {
+      this.arrayOfUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
+    } else if (sortingType === 'gender') {
+      this.arrayOfUsers.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+    } else if (sortingType === 'dob') {
+      this.arrayOfUsers.sort((a, b) => (a.dob > b.dob ? 1 : -1));
+    } else if (sortingType === 'phone') {
+      this.arrayOfUsers.sort((a, b) => (a.phone > b.phone ? 1 : -1));
+    }
   }
 
   getDataJson() {
 
-  }
-
-  sortByLast_name() {
-    this.arrayOfUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
-  }
-
-  sortByGender() {
-    this.arrayOfUsers.sort((a, b) => (a.gender > b.gender ? 1 : -1));
-  }
-
-  sortByDob() {
-    this.arrayOfUsers.sort((a, b) => (a.dob > b.dob ? 1 : -1));
-  }
-
-  sortByPhone() {
-    this.arrayOfUsers.sort((a, b) => (a.phone > b.phone ? 1 : -1));
   }
 }

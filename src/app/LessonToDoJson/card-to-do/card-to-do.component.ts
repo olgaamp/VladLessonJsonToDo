@@ -15,7 +15,15 @@ export class CardToDoComponent {
   constructor() {
     // 1. Создаём новый XMLHttpRequest-объект
     let dataUser = localStorage.getItem('dataUser');
-    if (dataUser !== null) {
+    let timeBegin = localStorage.getItem('getTimeDataUser');
+
+    let dateFromString = new Date(parseInt(timeBegin));
+
+    let now = new Date();
+    // let nowAsString = now.toTimeString(); toUTCString()
+    let diffDays = Math.abs(now.getTime() - dateFromString.getTime());
+
+    if (dataUser !== null && diffDays <= 10000) {
       this.processData(dataUser);
     } else {
       let xhr = new XMLHttpRequest();
@@ -31,6 +39,8 @@ export class CardToDoComponent {
         } else { // если всё прошло гладко, выводим результат
           alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
           localStorage.setItem('dataUser', xhr.response);
+          let now = new Date();
+          localStorage.setItem('getTimeDataUser', '' + now.getTime());
 
           thisComponent.processData(xhr.response);
         }

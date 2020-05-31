@@ -32,5 +32,9 @@
       </tr>
     </table>
   </div>
+  <br>
+  <button class="btn btn-secondary" (click)="createNewUser()">Создать нового пользователя</button>
+  <span *ngIf="isServerInteractionActive">Скачивание началось!</span>
+  <br>
 
 </div>

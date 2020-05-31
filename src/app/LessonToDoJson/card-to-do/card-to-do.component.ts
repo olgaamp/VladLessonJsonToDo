@@ -1,4 +1,6 @@
 import {Component} from '@angular/core';
+import {UserDto} from '../../UserDto';
+import {HttpRequestsSenderService} from '../services/httpRequestsSenderService';
 
 @Component({
   selector: 'app-card-to-do',
@@ -8,9 +10,9 @@ import {Component} from '@angular/core';
 })
 export class CardToDoComponent {
 
-  arrayOfUsers;
-  
-  // метод компонента CardToDoComponent
+  arrayOfUsers: any[];
+  isServerInteractionActive: any = false;
+  httpRequestsSenderService: HttpRequestsSenderService = new HttpRequestsSenderService();
 
   constructor() {
     this.loadData();
@@ -27,23 +29,17 @@ export class CardToDoComponent {
   }
 
   private getDataFromServer() {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-');
-    xhr.onload = this.getOnloadFunction(xhr);
-    xhr.send();
-  }
-
-  private getOnloadFunction(xhr: XMLHttpRequest) {
     let thisComponent = this;
-    return function() {
-
+    this.httpRequestsSenderService.getUsers(1, (xhr) => {
       if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
         alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
       } else { // если всё прошло гладко, выводим результат
-        alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+        // alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
         thisComponent.processResponse(xhr, thisComponent);
+        thisComponent.isServerInteractionActive = false;
       }
-    };
+    });
+    this.isServerInteractionActive = true;
   }
 
   private processResponse(xhr: XMLHttpRequest, thisComponent: this) {
@@ -67,7 +63,9 @@ export class CardToDoComponent {
 
   sort(sortingType: string) {
     if (sortingType === 'first_name') {
-      this.arrayOfUsers.sort((a, b) => (a.first_name > b.first_name ? 1 : -1));
+      this.arrayOfUsers.sort((a, b) => {
+        return (a.first_name > b.first_name ? 1 : -1);
+      });
     } else if (sortingType === 'last_name') {
       this.arrayOfUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
     } else if (sortingType === 'gender') {
@@ -79,9 +77,23 @@ export class CardToDoComponent {
     }
   }
 
-  getDataJson() {
+  createNewUser() {
+    let obj = {
+      first_name: 'Kuznetcova',
+      last_name: 'Ratke',
+      gender: 'male',
+      email: 'olga_amp@mail.ru',
+      status: 'active'
+    } as UserDto;
 
+    let thisComponent = this;
+    this.httpRequestsSenderService.postUser(obj, function() {
+      thisComponent.isServerInteractionActive = false;
+    });
+
+    this.isServerInteractionActive = true;
   }
+
   //Создатель новых пользователей
   //Создатель новых запросов
   //Обработчик данных (парсинг)

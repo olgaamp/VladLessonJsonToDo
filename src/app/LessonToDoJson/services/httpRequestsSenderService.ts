@@ -18,11 +18,8 @@ export class HttpRequestsSenderService {
 
     let xhr = new XMLHttpRequest();
     xhr.open('POST', this.url);
-    xhr.onload = function() {
-      functionToExecuteWhenUserUploadedToServer();
-    };
+    xhr.onload = functionToExecuteWhenUserUploadedToServer;
     xhr.setRequestHeader('Content-type', 'application/json');
-
     xhr.send(user);
   }
 }

@@ -1,6 +1,8 @@
 import {Component} from '@angular/core';
 import {UserDto} from '../../UserDto';
 import {HttpRequestsSenderService} from '../services/httpRequestsSenderService';
+import {SortingService} from '../services/sortingService';
+import {SortingType} from '../services/sortingType';
 
 @Component({
   selector: 'app-card-to-do',
@@ -13,6 +15,9 @@ export class CardToDoComponent {
   arrayOfUsers: any[];
   isServerInteractionActive: any = false;
   httpRequestsSenderService: HttpRequestsSenderService = new HttpRequestsSenderService();
+  sortingService: SortingService = new SortingService();
+  page: string;
+  SortingType = SortingType;
 
   constructor() {
     this.loadData();
@@ -24,13 +29,19 @@ export class CardToDoComponent {
     if (dataUser !== null && this.getDiffMs() <= 10000) {
       this.processData(dataUser);
     } else {
-      this.getDataFromServer();
+      this.getDataFromServer(1);
     }
   }
 
-  private getDataFromServer() {
+  private getDataFromServer(page: number) {
     let thisComponent = this;
-    this.httpRequestsSenderService.getUsers(1, (xhr) => {
+    // alert(`Страница ${this.page}`);
+
+    // let page = +this.page;
+    // let page = this.getPage();
+    alert(`Загрузи  ${page}`);
+
+    this.httpRequestsSenderService.getUsers(page, (xhr) => {
       if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
         alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
       } else { // если всё прошло гладко, выводим результат
@@ -58,23 +69,14 @@ export class CardToDoComponent {
   }
 
   processData(dataUser: string) {
-    this.arrayOfUsers = JSON.parse(dataUser).result.sort((a, b) => (a.gender > b.gender ? 1 : -1));
+    let parsedArrayOfUsers = JSON.parse(dataUser).result;
+    this.sortingService.sort(parsedArrayOfUsers, SortingType.Gender);
+
+    this.arrayOfUsers = parsedArrayOfUsers;
   }
 
-  sort(sortingType: string) {
-    if (sortingType === 'first_name') {
-      this.arrayOfUsers.sort((a, b) => {
-        return (a.first_name > b.first_name ? 1 : -1);
-      });
-    } else if (sortingType === 'last_name') {
-      this.arrayOfUsers.sort((a, b) => (a.last_name > b.last_name ? 1 : -1));
-    } else if (sortingType === 'gender') {
-      this.arrayOfUsers.sort((a, b) => (a.gender > b.gender ? 1 : -1));
-    } else if (sortingType === 'dob') {
-      this.arrayOfUsers.sort((a, b) => (a.dob > b.dob ? 1 : -1));
-    } else if (sortingType === 'phone') {
-      this.arrayOfUsers.sort((a, b) => (a.phone > b.phone ? 1 : -1));
-    }
+  sort(sortingType: SortingType) {
+    this.sortingService.sort(this.arrayOfUsers, sortingType);
   }
 
   createNewUser() {
@@ -102,4 +104,12 @@ export class CardToDoComponent {
   //сохранятор в локал сторадж
   //обработчик ошибок
   // + сам компонент
+
+
+  getPage() {
+    alert(`Страница ${this.page}`);
+    let page = +this.page;
+    this.getDataFromServer(page);
+  }
 }
+

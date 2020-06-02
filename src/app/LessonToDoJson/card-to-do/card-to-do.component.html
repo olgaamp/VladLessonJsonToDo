@@ -1,25 +1,26 @@
 <div class="container <!--card --><!--card-img-top-->">
   <h1 class="">Загрузка - выгрузка данных</h1>
   <br>
-  <button class="btn btn-secondary" (click)="getDataJson()">Загрузить</button>
+  <button class="btn btn-secondary" (click)="createNewUser()">Создать нового пользователя</button>
+  <span *ngIf="isServerInteractionActive">Скачивание началось!</span>
   <br>
   <div class="card card-img-top ">
     <table>
       <tr>
         <th>
-          <button name="familySort" (click)="sort('first_name')">first_name</button>
+          <button name="familySort" (click)="sort(SortingType.FirstName)">first_name</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort('last_name')">last_name</button>
+          <button name="familySort" (click)="sort(SortingType.LastName)">last_name</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort('gender')">gender</button>
+          <button name="familySort" (click)="sort(SortingType.Gender)">gender</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort('dob')">dob</button>
+          <button name="familySort" (click)="sort(SortingType.DateOfBirth)">dob</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort('phone')">phone</button>
+          <button name="familySort" (click)="sort(SortingType.PhoneNumber)">phone</button>
         </th>
       </tr>
 
@@ -33,8 +34,19 @@
     </table>
   </div>
   <br>
-  <button class="btn btn-secondary" (click)="createNewUser()">Создать нового пользователя</button>
-  <span *ngIf="isServerInteractionActive">Скачивание началось!</span>
-  <br>
 
+
+  <div class="input-group">
+    <input [(ngModel)]="page" type="text" class="form-control" placeholder="страницаТекущая" aria-label=""
+           aria-describedby="basic-addon1">
+    <div class="input-group-append">
+      <button (click)="getPage()" class="btn btn-success" type="button">Загрузить страницу</button>
+    </div>
+  </div>
+
+  <button class="btn btn-warning">Назад</button>
+
+  <input class="btn btn-dark" id="pageNumber" type="test" value="Страница {{page}}"/>
+  <br>
 </div>
+<br>

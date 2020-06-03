@@ -2,7 +2,7 @@
   <h1 class="">Загрузка - выгрузка данных</h1>
   <br>
   <button class="btn btn-secondary" (click)="createNewUser()">Создать нового пользователя</button>
-  <span *ngIf="isServerInteractionActive">Скачивание началось!</span>
+  <span *ngIf="isServerInteractionActive">Загрузка началась!</span>
   <br>
   <div class="card card-img-top ">
     <table>
@@ -44,9 +44,12 @@
     </div>
   </div>
 
+  <span *ngIf="isServerInteractionActiveFromServer">Загрузка началась!</span>
+  <br>
   <button class="btn btn-warning">Назад</button>
 
-  <input class="btn btn-dark" id="pageNumber" type="test" value="Страница {{page}}"/>
+  <input class="btn btn-dark" id="pageNumber" type="test" value="Стр. {{page}}"/>
+  <button class="btn btn-warning" value="{{page1}}">Следующая</button>
   <br>
 </div>
 <br>

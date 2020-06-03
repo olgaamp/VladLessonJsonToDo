@@ -3,6 +3,7 @@ import {UserDto} from '../../UserDto';
 import {HttpRequestsSenderService} from '../services/httpRequestsSenderService';
 import {SortingService} from '../services/sortingService';
 import {SortingType} from '../services/sortingType';
+import {CreateNewUserService} from '../services/createNewUserService';
 
 @Component({
   selector: 'app-card-to-do',
@@ -12,22 +13,31 @@ import {SortingType} from '../services/sortingType';
 })
 export class CardToDoComponent {
 
-  arrayOfUsers: any[];
+  arrayOfUsers: UserDto[];
   isServerInteractionActive: any = false;
+  isServerInteractionActiveFromServer: any = false;
   httpRequestsSenderService: HttpRequestsSenderService = new HttpRequestsSenderService();
   sortingService: SortingService = new SortingService();
   page: string;
+  page1: number;
   SortingType = SortingType;
+  private operationStarted: boolean;
+  private createNewUserService: CreateNewUserService = new CreateNewUserService();
 
   constructor() {
+
+    // this.какойтоСервис.ЗагрузиДанные((загруженныеДанные) => {
+    //   // кладем загруженные данные в arrayOfUsers
+    // });
+
     this.loadData();
   }
 
-  private loadData() {
+  public loadData() {
     let dataUser = localStorage.getItem('dataUser');
 
     if (dataUser !== null && this.getDiffMs() <= 10000) {
-      this.processData(dataUser);
+      this.httpRequestsSenderService.processData(dataUser);
     } else {
       this.getDataFromServer(1);
     }
@@ -35,30 +45,30 @@ export class CardToDoComponent {
 
   private getDataFromServer(page: number) {
     let thisComponent = this;
-    // alert(`Страница ${this.page}`);
 
-    // let page = +this.page;
-    // let page = this.getPage();
-    alert(`Загрузи  ${page}`);
+    this.httpRequestsSenderService.getUsers(page, (data: UserDto[]) => {
+        thisComponent.arrayOfUsers = data;
+        // this.isServerInteractionActiveFromServer = true;
+      }, (errorMessage: string) => {
+        // тут вариант с ошибкой
+        alert(errorMessage);
+      },
+      () => {
+        thisComponent.isServerInteractionActiveFromServer = false;
+      });
 
-    this.httpRequestsSenderService.getUsers(page, (xhr) => {
-      if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
-        alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
-      } else { // если всё прошло гладко, выводим результат
-        // alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
-        thisComponent.processResponse(xhr, thisComponent);
-        thisComponent.isServerInteractionActive = false;
-      }
-    });
-    this.isServerInteractionActive = true;
+    // this.httpRequestsSenderService.getUsers(page, (xhr) => {
+    //   if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+    //     alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+    //   } else { // если всё прошло гладко, выводим результат
+    //     // alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+    //     thisComponent.processResponse(xhr, thisComponent);
+    //     thisComponent.isServerInteractionActive = false;
+    //   }
+    // });
+    // this.isServerInteractionActive = true;
   }
 
-  private processResponse(xhr: XMLHttpRequest, thisComponent: this) {
-    localStorage.setItem('dataUser', xhr.response);
-    let now = new Date();
-    localStorage.setItem('getTimeDataUser', '' + now.getTime());
-    thisComponent.processData(xhr.response);
-  }
 
   private getDiffMs() {
     let timeBegin = localStorage.getItem('getTimeDataUser');
@@ -68,38 +78,30 @@ export class CardToDoComponent {
     return diffMs;
   }
 
-  processData(dataUser: string) {
-    let parsedArrayOfUsers = JSON.parse(dataUser).result;
-    this.sortingService.sort(parsedArrayOfUsers, SortingType.Gender);
-
-    this.arrayOfUsers = parsedArrayOfUsers;
-  }
 
   sort(sortingType: SortingType) {
     this.sortingService.sort(this.arrayOfUsers, sortingType);
+
   }
 
   createNewUser() {
-    let obj = {
-      first_name: 'Kuznetcova',
-      last_name: 'Ratke',
-      gender: 'male',
-      email: 'olga_amp@mail.ru',
-      status: 'active'
-    } as UserDto;
-
     let thisComponent = this;
-    this.httpRequestsSenderService.postUser(obj, function() {
-      thisComponent.isServerInteractionActive = false;
-    });
+    thisComponent.isServerInteractionActive = true;
 
-    this.isServerInteractionActive = true;
+    // всё. Теперь есть и переменная с названием
+    this.createNewUserService.createNewUser(() => {
+      this.isServerInteractionActive = false;
+    });
+    // Здесь? Да. можно даже вот так
+    // то есть можно даже показывать не на http запрос. А прямо говорить: вот вся операция началась.
+    // Будет в ней http или нет не так важно. Пусть крутится, пока идет операция/ всё
+    //ПОчему не определено на 85 на 84
   }
 
   //Создатель новых пользователей
-  //Создатель новых запросов
+  //Создатель новых запросов   Сделано
   //Обработчик данных (парсинг)
-  //Сортировщик
+  //Сортировщик  Сделано
   //Отслеживатель того, что данные в кэше уже не валидны
   //сохранятор в локал сторадж
   //обработчик ошибок
@@ -107,9 +109,13 @@ export class CardToDoComponent {
 
 
   getPage() {
-    alert(`Страница ${this.page}`);
+    this.isServerInteractionActiveFromServer = true;
     let page = +this.page;
+    this.page1 = page + 1;
     this.getDataFromServer(page);
+
   }
+
+
 }
 

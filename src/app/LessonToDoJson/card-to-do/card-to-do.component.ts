@@ -19,7 +19,7 @@ export class CardToDoComponent {
   httpRequestsSenderService: HttpRequestsSenderService = new HttpRequestsSenderService();
   sortingService: SortingService = new SortingService();
   page: string;
-  page1: number;
+  pageNumber: number = 1;
   SortingType = SortingType;
   private operationStarted: boolean;
   private createNewUserService: CreateNewUserService = new CreateNewUserService();
@@ -39,34 +39,26 @@ export class CardToDoComponent {
     if (dataUser !== null && this.getDiffMs() <= 10000) {
       this.httpRequestsSenderService.processData(dataUser);
     } else {
-      this.getDataFromServer(1);
+      this.getDataFromServer(this.pageNumber);
     }
   }
 
   private getDataFromServer(page: number) {
     let thisComponent = this;
 
-    this.httpRequestsSenderService.getUsers(page, (data: UserDto[]) => {
+    this.httpRequestsSenderService.getUsers(page, (data: UserDto[], currentPage: number) => {
         thisComponent.arrayOfUsers = data;
-        // this.isServerInteractionActiveFromServer = true;
+        thisComponent.pageNumber = currentPage;
+
       }, (errorMessage: string) => {
         // тут вариант с ошибкой
-        alert(errorMessage);
+        alert('Ошибка: ' + errorMessage);
+
       },
       () => {
         thisComponent.isServerInteractionActiveFromServer = false;
       });
 
-    // this.httpRequestsSenderService.getUsers(page, (xhr) => {
-    //   if (xhr.status !== 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
-    //     alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
-    //   } else { // если всё прошло гладко, выводим результат
-    //     // alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
-    //     thisComponent.processResponse(xhr, thisComponent);
-    //     thisComponent.isServerInteractionActive = false;
-    //   }
-    // });
-    // this.isServerInteractionActive = true;
   }
 
 
@@ -111,11 +103,14 @@ export class CardToDoComponent {
   getPage() {
     this.isServerInteractionActiveFromServer = true;
     let page = +this.page;
-    this.page1 = page + 1;
+    this.pageNumber = page + 1;
     this.getDataFromServer(page);
 
   }
 
 
+  openNextPage() {
+    this.getDataFromServer(this.pageNumber + 1);
+  }
 }
 

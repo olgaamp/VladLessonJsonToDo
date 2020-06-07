@@ -3,24 +3,26 @@ import {SortingType} from './sortingType';
 
 export class HttpRequestsSenderService {
 
-  private url: string = 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-';
+  private static url: string = 'https://gorest.co.in/public-api/users?_format=json&access-token=Mpa9uWdhPEW_AbKAgwY8PHJHODpV84Cgo1d-';
 
   getUsers(
     page: number,
-    functionForSuccess: (data: UserDto[]) => void,
+    functionForSuccess: (data: UserDto[], currentPage: number) => void,
     functionForError: (errorMessage: string) => void,
     functionInTheEnd: () => void) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', this.url + '&page=' + page);
-    let thisService = this;
+    xhr.open('GET', HttpRequestsSenderService.url + '&page=' + page);
+    let thisComponent = this;
     xhr.onload = function() {
+      // 1 строчка, где мы знаем, что ответ получен
+
       if (xhr.status !== 200) {
-        functionForError(`Ошибка ${xhr.status}: ${xhr.statusText}`);
+        functionForError(xhr.status + ' ' + xhr.statusText);
       } else {
         // тут как-то побрабатывает данные
         // получаем наш массив. Пусть переменная называется data
-        let data = thisService.processResponse(xhr);
-        functionForSuccess(data);
+        let data = thisComponent.processResponse(xhr);
+        functionForSuccess(data.result as UserDto[], data._meta.currentPage);
       }
 
       functionInTheEnd();
@@ -28,27 +30,23 @@ export class HttpRequestsSenderService {
     xhr.send();
   }
 
-  private processResponse(xhr: XMLHttpRequest): UserDto[] {
+  private processResponse(xhr: XMLHttpRequest) {
     localStorage.setItem('dataUser', xhr.response);
     let now = new Date();
     localStorage.setItem('getTimeDataUser', '' + now.getTime());
-    let result = this.processData(xhr.response);
-    // localStorage.setItem('getPageNumber', page);
-
+    let result = JSON.parse(xhr.response);
     return result;
   }
 
   public processData(dataUser: string) {
-    let parsedArrayOfUsers = JSON.parse(dataUser).result;
-
-    return parsedArrayOfUsers;
+    return;
   }
 
   postUser(userDto: UserDto, functionToExecuteWhenUserUploadedToServer: () => void) {
     let user = JSON.stringify(userDto);
 
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', this.url);
+    xhr.open('POST', HttpRequestsSenderService.url);
     xhr.onload = functionToExecuteWhenUserUploadedToServer;
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.send(user);

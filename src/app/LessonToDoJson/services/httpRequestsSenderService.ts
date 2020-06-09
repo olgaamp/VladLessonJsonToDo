@@ -21,8 +21,8 @@ export class HttpRequestsSenderService {
       } else {
         // тут как-то побрабатывает данные
         // получаем наш массив. Пусть переменная называется data
-        let data = thisComponent.processResponse(xhr);
-        functionForSuccess(data.result as UserDto[], data._meta.currentPage);
+        let data = thisComponent.processResponse(xhr, page);
+        functionForSuccess(data.result as UserDto[], page);
       }
 
       functionInTheEnd();
@@ -30,16 +30,15 @@ export class HttpRequestsSenderService {
     xhr.send();
   }
 
-  private processResponse(xhr: XMLHttpRequest) {
-    localStorage.setItem('dataUser', xhr.response);
+  private processResponse(xhr: XMLHttpRequest, page) {
+    let pageString: string = page;
+    localStorage.setItem(pageString, xhr.response);
     let now = new Date();
     localStorage.setItem('getTimeDataUser', '' + now.getTime());
+    // сломалось здесь. Нужно разбираться
+    // localStorage.setItem('getPageNumberDataUser', xhr._meta.currentPage);
     let result = JSON.parse(xhr.response);
     return result;
-  }
-
-  public processData(dataUser: string) {
-    return;
   }
 
   postUser(userDto: UserDto, functionToExecuteWhenUserUploadedToServer: () => void) {
@@ -51,5 +50,6 @@ export class HttpRequestsSenderService {
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.send(user);
   }
+
 
 }

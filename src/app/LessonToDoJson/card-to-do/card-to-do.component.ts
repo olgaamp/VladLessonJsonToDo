@@ -1,116 +1,64 @@
 import {Component} from '@angular/core';
 import {UserDto} from '../../UserDto';
-import {HttpRequestsSenderService} from '../services/httpRequestsSenderService';
 import {SortingService} from '../services/sortingService';
 import {SortingType} from '../services/sortingType';
 import {CreateNewUserService} from '../services/createNewUserService';
+import {DataLoader} from '../services/data.loader';
 
 @Component({
   selector: 'app-card-to-do',
-  //html этого компонента. Отттуда у нас доступ к полям и метоам класса CardToDoComponent
   templateUrl: './card-to-do.component.html',
   styleUrls: ['./card-to-do.component.css']
 })
 export class CardToDoComponent {
 
   arrayOfUsers: UserDto[];
-  isServerInteractionActive: any = false;
-  isServerInteractionActiveFromServer: any = false;
-  httpRequestsSenderService: HttpRequestsSenderService = new HttpRequestsSenderService();
+  isNewUserUploadingInProgress: boolean = false;
+  isUsersArrayDownloadingInProgress: boolean = false;
   sortingService: SortingService = new SortingService();
   page: string;
   pageNumber: number = 1;
   SortingType = SortingType;
-  private operationStarted: boolean;
   private createNewUserService: CreateNewUserService = new CreateNewUserService();
+  dataLoader: DataLoader = new DataLoader();
 
   constructor() {
-
-    // this.какойтоСервис.ЗагрузиДанные((загруженныеДанные) => {
-    //   // кладем загруженные данные в arrayOfUsers
-    // });
-
-    this.loadData();
+    this.loadData(this.pageNumber);
   }
 
-  public loadData() {
-    let dataUser = localStorage.getItem('dataUser');
-
-    if (dataUser !== null && this.getDiffMs() <= 10000) {
-      this.httpRequestsSenderService.processData(dataUser);
-    } else {
-      this.getDataFromServer(this.pageNumber);
-    }
-  }
-
-  private getDataFromServer(page: number) {
+  private loadData(number: number) {
     let thisComponent = this;
-
-    this.httpRequestsSenderService.getUsers(page, (data: UserDto[], currentPage: number) => {
+    this.isUsersArrayDownloadingInProgress = true;
+    this.dataLoader.loadData(number, (data: UserDto[], currentPage: number) => {
         thisComponent.arrayOfUsers = data;
-        thisComponent.pageNumber = currentPage;
-
+        thisComponent.pageNumber = +currentPage;
       }, (errorMessage: string) => {
-        // тут вариант с ошибкой
         alert('Ошибка: ' + errorMessage);
-
       },
       () => {
-        thisComponent.isServerInteractionActiveFromServer = false;
+        thisComponent.isUsersArrayDownloadingInProgress = false;
       });
-
   }
 
-
-  private getDiffMs() {
-    let timeBegin = localStorage.getItem('getTimeDataUser');
-    let dateFromString = new Date(parseInt(timeBegin));
-    let now = new Date();
-    let diffMs = Math.abs(now.getTime() - dateFromString.getTime());
-    return diffMs;
-  }
-
-
-  sort(sortingType: SortingType) {
+  onSortButtonClick(sortingType: SortingType) {
     this.sortingService.sort(this.arrayOfUsers, sortingType);
-
   }
 
-  createNewUser() {
+  onCreateNewUserButtonClick() {
+    this.isNewUserUploadingInProgress = true;
     let thisComponent = this;
-    thisComponent.isServerInteractionActive = true;
-
-    // всё. Теперь есть и переменная с названием
     this.createNewUserService.createNewUser(() => {
-      this.isServerInteractionActive = false;
+      thisComponent.isNewUserUploadingInProgress = false;
     });
-    // Здесь? Да. можно даже вот так
-    // то есть можно даже показывать не на http запрос. А прямо говорить: вот вся операция началась.
-    // Будет в ней http или нет не так важно. Пусть крутится, пока идет операция/ всё
-    //ПОчему не определено на 85 на 84
   }
 
-  //Создатель новых пользователей
-  //Создатель новых запросов   Сделано
-  //Обработчик данных (парсинг)
-  //Сортировщик  Сделано
-  //Отслеживатель того, что данные в кэше уже не валидны
-  //сохранятор в локал сторадж
-  //обработчик ошибок
-  // + сам компонент
-
-
-  getPage() {
-    this.isServerInteractionActiveFromServer = true;
-    let page = +this.page;
-    this.pageNumber = page + 1;
-    this.getDataFromServer(page);
-
+  onLoadPageButtonClick() {
+    let pageNumber = +this.page;
+    this.loadData(pageNumber);
   }
 
-
-  openNextPage() {
-    this.getDataFromServer(this.pageNumber + 1);
+  onNextPageButtonClick() {
+    this.loadData(this.pageNumber + 1);
   }
 }
 

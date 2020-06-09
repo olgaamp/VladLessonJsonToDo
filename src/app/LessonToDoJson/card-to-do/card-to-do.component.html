@@ -1,26 +1,26 @@
 <div class="container <!--card --><!--card-img-top-->">
   <h1 class="">Загрузка - выгрузка данных</h1>
   <br>
-  <button class="btn btn-secondary" (click)="createNewUser()">Создать нового пользователя</button>
-  <span *ngIf="isServerInteractionActive">Идет загрузка нового пользователя!</span>
+  <button class="btn btn-secondary" (click)="onCreateNewUserButtonClick()">Создать нового пользователя</button>
+  <span *ngIf="isNewUserUploadingInProgress">Идет загрузка нового пользователя!</span>
   <br>
   <div class="card card-img-top ">
     <table>
       <tr>
         <th>
-          <button name="familySort" (click)="sort(SortingType.FirstName)">first_name</button>
+          <button name="familySort" (click)="onSortButtonClick(SortingType.FirstName)">first_name</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort(SortingType.LastName)">last_name</button>
+          <button name="familySort" (click)="onSortButtonClick(SortingType.LastName)">last_name</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort(SortingType.Gender)">gender</button>
+          <button name="familySort" (click)="onSortButtonClick(SortingType.Gender)">gender</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort(SortingType.DateOfBirth)">dob</button>
+          <button name="familySort" (click)="onSortButtonClick(SortingType.DateOfBirth)">dob</button>
         </th>
         <th>
-          <button name="familySort" (click)="sort(SortingType.PhoneNumber)">phone</button>
+          <button name="familySort" (click)="onSortButtonClick(SortingType.PhoneNumber)">phone</button>
         </th>
       </tr>
 
@@ -37,19 +37,19 @@
 
 
   <div class="input-group">
-    <input [(ngModel)]="page" type="text" class="form-control" placeholder="страницаТекущая" aria-label=""
+    <input [(ngModel)]="page" type="text" id="page" class="form-control" placeholder="страницаТекущая" aria-label=""
            aria-describedby="basic-addon1">
     <div class="input-group-append">
-      <button (click)="getPage()" class="btn btn-success" type="button">Загрузить страницу</button>
+      <button (click)="onLoadPageButtonClick()" class="btn btn-success" type="button">Загрузить страницу</button>
     </div>
   </div>
 
-  <span class = "flagText" *ngIf="isServerInteractionActiveFromServer">Загрузка началась!</span>
+  <span class="flagText" *ngIf="isUsersArrayDownloadingInProgress">Загрузка началась!</span>
   <br>
   <button class="btn btn-warning">Назад</button>
 
   <input class="btn btn-dark" id="pageNumber" type="test" value="Стр. {{page}}"/>
-  <button class="btn btn-warning" (click)="openNextPage()">Следующая</button>
+  <button class="btn btn-warning" (click)="onNextPageButtonClick()">Следующая</button>
   <br>
 </div>
 <br>
